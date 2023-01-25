@@ -75,7 +75,7 @@ function App() {
         <div
           style={{
             width: "100%",
-            height: "65%",
+            height: "75%",
             backgroundColor: "pink",
             display: "flex",
             alignItems: "center",
@@ -99,7 +99,7 @@ function App() {
               borderColor: "white",
               position: "absolute",
               borderStyle: "solid",
-              width: "85%",
+              width: "75%",
               height: "90%",
             }}
           />
