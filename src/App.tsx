@@ -99,7 +99,7 @@ function App() {
               borderColor: "white",
               position: "absolute",
               borderStyle: "solid",
-              width: "75%",
+              width: "70%",
               height: "90%",
             }}
           />
