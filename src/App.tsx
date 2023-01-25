@@ -75,7 +75,7 @@ function App() {
         <div
           style={{
             width: "100%",
-            height: "75%",
+            height: "65%",
             backgroundColor: "pink",
             display: "flex",
             alignItems: "center",
