@@ -9,12 +9,14 @@ function App() {
   const [camera, setCamera] = useState<CameraPhoto | null>(null);
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const [prev, setPrev] = useState("");
+  const [hasPermission, setHasPermission] = useState<boolean | null>(null);
 
   useEffect(() => {
     if (camera && !camera.stream) {
       camera
         .startCamera(FACING_MODES.ENVIRONMENT, { width: 1920, height: 1080 })
-        .catch((err) => console.log(err));
+        .then(() => setHasPermission(true))
+        .catch(() => setHasPermission(false));
     }
   }, [camera]);
 
@@ -35,6 +37,22 @@ function App() {
       setPrev(uri);
     }
   };
+
+  if (hasPermission === false) {
+    return (
+      <button
+        onClick={async () => {
+          await navigator.mediaDevices
+            .getUserMedia({ video: true })
+            .then((res) => res.getTracks().forEach((track) => track.stop()))
+            .then(() => setHasPermission(true))
+            .catch(() => setHasPermission(false));
+        }}
+      >
+        <p>Open Camera</p>
+      </button>
+    );
+  }
 
   return (
     <div
