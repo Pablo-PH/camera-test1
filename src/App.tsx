@@ -9,10 +9,6 @@ function App() {
   const [camera, setCamera] = useState<CameraPhoto | null>(null);
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const [prev, setPrev] = useState("");
-  const [guidlineDimension, setGuidlineDimension] = useState({
-    width: 0,
-    height: 0,
-  });
 
   useEffect(() => {
     if (camera && !camera.stream) {
@@ -25,17 +21,6 @@ function App() {
   useEffect(() => {
     (async () => {
       if (videoRef.current) {
-        const { offsetHeight, offsetWidth } = videoRef.current;
-        if (offsetHeight < offsetWidth) {
-          console.log("HEIGHT NOT GREATOR THAT WIDTH", {
-            offsetHeight,
-            offsetWidth,
-          });
-        }
-        setGuidlineDimension({
-          width: offsetWidth - 70,
-          height: offsetHeight - 70,
-        });
         setCamera(new CameraPhoto(videoRef.current));
       }
     })();
@@ -61,27 +46,41 @@ function App() {
         flexDirection: "column",
         justifyContent: "start",
         alignItems: "center",
+        overflow: "hidden",
       }}
     >
       <div
         style={{
           width: "100%",
-          height: "90%",
+          height: "100%",
           display: "flex",
           flexDirection: "column",
-          justifyContent: "center",
+          justifyContent: "start",
           alignItems: "center",
           overflow: "hidden",
           backgroundColor: "black",
         }}
       >
+        <button
+          style={{
+            width: 30,
+            height: 30,
+            borderRadius: 100,
+            marginBottom: 5,
+          }}
+          onClick={takePicture}
+        >
+          <p>X</p>
+        </button>
         <div
           style={{
             width: "100%",
+            height: "75%",
             backgroundColor: "pink",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
+            position: "relative",
           }}
         >
           <img
@@ -100,13 +99,14 @@ function App() {
               borderColor: "white",
               position: "absolute",
               borderStyle: "solid",
-              width: guidlineDimension.width,
-              height: guidlineDimension.height,
+              width: "85%",
+              height: "90%",
             }}
           />
           <video
-            style={{ objectFit: "contain" }}
+            style={{ objectFit: "fill" }}
             width={"100%"}
+            height={"100%"}
             autoPlay={true}
             ref={videoRef}
             contentEditable={false}
@@ -120,7 +120,7 @@ function App() {
             width: 50,
             height: 50,
             borderRadius: 100,
-            marginTop: 5
+            marginTop: 5,
           }}
           onClick={takePicture}
         >
