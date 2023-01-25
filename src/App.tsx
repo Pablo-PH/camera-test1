@@ -11,14 +11,16 @@ function App() {
   const [prev, setPrev] = useState("");
   const [hasPermission, setHasPermission] = useState<boolean | null>(null);
 
-  useEffect(() => {
+  const startCamera = () => {
     if (camera && !camera.stream) {
       camera
         .startCamera(FACING_MODES.ENVIRONMENT, { width: 1920, height: 1080 })
         .then(() => setHasPermission(true))
         .catch(() => setHasPermission(false));
     }
-  }, [camera]);
+  };
+
+  useEffect(() => startCamera(), [camera]);
 
   useEffect(() => {
     (async () => {
@@ -45,6 +47,7 @@ function App() {
           await navigator.mediaDevices
             .getUserMedia({ video: true })
             .then((res) => res.getTracks().forEach((track) => track.stop()))
+            .then(() => startCamera())
             .then(() => setHasPermission(true))
             .catch(() => setHasPermission(false));
         }}
