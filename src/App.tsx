@@ -4,31 +4,52 @@ import CameraPhoto, {
   FACING_MODES,
   IMAGE_TYPES,
 } from "jslib-html5-camera-photo";
+import { askCameraPermission } from "./askCameraPermission";
 
 function App() {
+  const [isCameraOpen, setIsCameraOpen] = useState(false);
   const [camera, setCamera] = useState<CameraPhoto | null>(null);
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const [prev, setPrev] = useState("");
   const [hasPermission, setHasPermission] = useState<boolean | null>(null);
 
-  const startCamera = () => {
-    if (camera && !camera.stream) {
-      camera
+  // const startCamera = () => {
+  //   if (camera && !camera.stream) {
+  //     camera
+  //       .startCamera(FACING_MODES.ENVIRONMENT, { width: 1920, height: 1080 })
+  //       .then(() => setHasPermission(true))
+  //       .catch(() => setHasPermission(false));
+  //   }
+  // };
+
+  const startCamera = async (newCam?: CameraPhoto) => {
+    let activeCamera = camera;
+
+    if (newCam) {
+      activeCamera = newCam;
+      setCamera(newCam);
+    }
+
+    if (activeCamera && !activeCamera.stream) {
+      if (hasPermission === false) {
+        await askCameraPermission();
+      }
+
+      activeCamera
         .startCamera(FACING_MODES.ENVIRONMENT, { width: 1920, height: 1080 })
         .then(() => setHasPermission(true))
         .catch(() => setHasPermission(false));
     }
   };
 
-  useEffect(() => startCamera(), [camera]);
-
   useEffect(() => {
-    (async () => {
-      if (videoRef.current) {
-        setCamera(new CameraPhoto(videoRef.current));
-      }
-    })();
-  }, [videoRef.current]);
+    if (videoRef.current && isCameraOpen) {
+      console.log("NEW CAMERA");
+
+      const newCam = new CameraPhoto(videoRef.current);
+      startCamera(newCam);
+    }
+  }, [isCameraOpen]);
 
   const takePicture = async () => {
     if (camera) {
@@ -40,20 +61,26 @@ function App() {
     }
   };
 
-  if (hasPermission === false) {
+  if (hasPermission === false || !isCameraOpen) {
     return (
-      <button
-        onClick={async () => {
-          await navigator.mediaDevices
-            .getUserMedia({ video: true })
-            .then((res) => res.getTracks().forEach((track) => track.stop()))
-            .then(() => startCamera())
-            .then(() => setHasPermission(true))
-            .catch(() => setHasPermission(false));
-        }}
-      >
-        <p>Open Camera</p>
-      </button>
+      <div>
+        <button
+          onClick={() => {
+            setIsCameraOpen(true);
+          }}
+        >
+          {hasPermission === false && <p>DENIED</p>}
+          <p>Open Camera</p>
+        </button>
+        <img
+          src={prev}
+          alt="PHOTO"
+          style={{
+            width: 250,
+            height: "100%",
+          }}
+        />
+      </div>
     );
   }
 
@@ -89,7 +116,9 @@ function App() {
             borderRadius: 100,
             marginBottom: 5,
           }}
-          onClick={takePicture}
+          onClick={() => {
+            setIsCameraOpen(false);
+          }}
         >
           <p>X</p>
         </button>
