@@ -20,27 +20,33 @@ function App() {
       activeCamera = newCam;
       setCamera(newCam);
     }
+    console.log({ activeCamera });
 
-    if (activeCamera && !activeCamera.stream) {
+    if (activeCamera) {
       if (hasPermission === false) {
         console.log("ASKING");
         await askCameraPermission();
       }
-
-      activeCamera
-        .startCamera(FACING_MODES.ENVIRONMENT, { width: 1920, height: 1080 })
-        .then(() => setHasPermission(true))
-        .catch(() => {
-          setIsCameraOpen(false);
-          setHasPermission(false);
+      console.log("STARTING CAMERA");
+      try {
+        await activeCamera.startCamera(FACING_MODES.ENVIRONMENT, {
+          width: 1920,
+          height: 1080,
         });
+        console.log("SUCCESS START", { activeCamera });
+        setHasPermission(true);
+      } catch (err) {
+        console.error(err);
+
+        setIsCameraOpen(false);
+        setHasPermission(false);
+      }
     }
   };
 
   useEffect(() => {
     if (videoRef.current && isCameraOpen) {
       console.log("NEW CAMERA");
-
       const newCam = new CameraPhoto(videoRef.current);
       startCamera(newCam);
     }
@@ -111,7 +117,8 @@ function App() {
             borderRadius: 100,
             marginBottom: 5,
           }}
-          onClick={() => {
+          onClick={async () => {
+            await camera?.stopCamera();
             setIsCameraOpen(false);
           }}
         >
