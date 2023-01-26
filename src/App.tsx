@@ -13,15 +13,6 @@ function App() {
   const [prev, setPrev] = useState("");
   const [hasPermission, setHasPermission] = useState<boolean | null>(null);
 
-  // const startCamera = () => {
-  //   if (camera && !camera.stream) {
-  //     camera
-  //       .startCamera(FACING_MODES.ENVIRONMENT, { width: 1920, height: 1080 })
-  //       .then(() => setHasPermission(true))
-  //       .catch(() => setHasPermission(false));
-  //   }
-  // };
-
   const startCamera = async (newCam?: CameraPhoto) => {
     let activeCamera = camera;
 
@@ -32,13 +23,17 @@ function App() {
 
     if (activeCamera && !activeCamera.stream) {
       if (hasPermission === false) {
+        console.log("ASKING");
         await askCameraPermission();
       }
 
       activeCamera
         .startCamera(FACING_MODES.ENVIRONMENT, { width: 1920, height: 1080 })
         .then(() => setHasPermission(true))
-        .catch(() => setHasPermission(false));
+        .catch(() => {
+          setIsCameraOpen(false);
+          setHasPermission(false);
+        });
     }
   };
 
@@ -61,7 +56,7 @@ function App() {
     }
   };
 
-  if (hasPermission === false || !isCameraOpen) {
+  if (!isCameraOpen) {
     return (
       <div>
         <button
