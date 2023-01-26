@@ -55,7 +55,7 @@ function App() {
     if (camera) {
       const uri = camera?.getDataUri({
         sizeFactor: 1,
-        imageType: IMAGE_TYPES.JPG,
+        imageType: IMAGE_TYPES.PNG,
       });
       setPrev(uri);
     }
