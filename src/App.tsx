@@ -33,6 +33,11 @@ function App() {
           width: 1920,
           height: 1080,
         });
+        if (activeCamera.settings) {
+          const { width, height, aspectRatio } = activeCamera.settings;
+          console.log(width, height, aspectRatio);
+        }
+
         console.log("SUCCESS START", { activeCamera });
         setHasPermission(true);
       } catch (err) {
@@ -65,13 +70,34 @@ function App() {
   if (!isCameraOpen) {
     return (
       <div>
+        {hasPermission === false && <p>DENIED</p>}
         <button
           onClick={() => {
             setIsCameraOpen(true);
           }}
         >
-          {hasPermission === false && <p>DENIED</p>}
-          <p>Open Camera</p>
+          <p>1920 x 1080</p>
+        </button>
+        <button
+          onClick={() => {
+            setIsCameraOpen(true);
+          }}
+        >
+          <p>2560 x 1440</p>
+        </button>
+        <button
+          onClick={() => {
+            setIsCameraOpen(true);
+          }}
+        >
+          <p>3024 x 4032</p>
+        </button>
+        <button
+          onClick={() => {
+            setIsCameraOpen(true);
+          }}
+        >
+          <p>Highest possible</p>
         </button>
         <img
           src={prev}
