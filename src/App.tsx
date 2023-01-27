@@ -7,13 +7,16 @@ import CameraPhoto, {
 import { askCameraPermission } from "./askCameraPermission";
 
 function App() {
-  const [isCameraOpen, setIsCameraOpen] = useState(false);
+  const [isCameraOpen, setIsCameraOpen] = useState({
+    isOpen: false,
+    quality: 1,
+  });
   const [camera, setCamera] = useState<CameraPhoto | null>(null);
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const [prev, setPrev] = useState("");
   const [hasPermission, setHasPermission] = useState<boolean | null>(null);
 
-  const startCamera = async (newCam?: CameraPhoto) => {
+  const startCamera = async (quality: number, newCam?: CameraPhoto) => {
     let activeCamera = camera;
 
     if (newCam) {
@@ -29,10 +32,27 @@ function App() {
       }
       console.log("STARTING CAMERA");
       try {
-        await activeCamera.startCamera(FACING_MODES.ENVIRONMENT, {
-          width: 1920,
-          height: 1080,
-        });
+        if (isCameraOpen.quality === 1) {
+          await activeCamera.startCamera(FACING_MODES.ENVIRONMENT, {
+            width: 1920,
+            height: 1080,
+          });
+        }
+        if (isCameraOpen.quality === 2) {
+          await activeCamera.startCamera(FACING_MODES.ENVIRONMENT, {
+            width: 2560,
+            height: 1440,
+          });
+        }
+        if (isCameraOpen.quality === 3) {
+          await activeCamera.startCamera(FACING_MODES.ENVIRONMENT, {
+            width: 3840,
+            height: 2160,
+          });
+        }
+        if (isCameraOpen.quality === 4) {
+          await activeCamera.startCameraMaxResolution(FACING_MODES.ENVIRONMENT);
+        }
         if (activeCamera.settings) {
           const { width, height, aspectRatio } = activeCamera.settings;
           console.log(width, height, aspectRatio);
@@ -43,58 +63,58 @@ function App() {
       } catch (err) {
         console.error(err);
 
-        setIsCameraOpen(false);
+        setIsCameraOpen({ isOpen: false, quality });
         setHasPermission(false);
       }
     }
   };
 
   useEffect(() => {
-    if (videoRef.current && isCameraOpen) {
+    if (videoRef.current && isCameraOpen.isOpen) {
       console.log("NEW CAMERA");
       const newCam = new CameraPhoto(videoRef.current);
-      startCamera(newCam);
+      startCamera(isCameraOpen.quality, newCam);
     }
-  }, [isCameraOpen]);
+  }, [isCameraOpen.isOpen]);
 
   const takePicture = async () => {
     if (camera) {
       const uri = camera?.getDataUri({
         sizeFactor: 1,
-        imageType: IMAGE_TYPES.PNG,
+        imageType: IMAGE_TYPES.JPG,
       });
       setPrev(uri);
     }
   };
 
-  if (!isCameraOpen) {
+  if (!isCameraOpen.isOpen) {
     return (
       <div>
         {hasPermission === false && <p>DENIED</p>}
         <button
           onClick={() => {
-            setIsCameraOpen(true);
+            setIsCameraOpen({ isOpen: true, quality: 1 });
           }}
         >
           <p>1920 x 1080</p>
         </button>
         <button
           onClick={() => {
-            setIsCameraOpen(true);
+            setIsCameraOpen({ isOpen: true, quality: 2 });
           }}
         >
           <p>2560 x 1440</p>
         </button>
         <button
           onClick={() => {
-            setIsCameraOpen(true);
+            setIsCameraOpen({ isOpen: true, quality: 3 });
           }}
         >
           <p>3024 x 4032</p>
         </button>
         <button
           onClick={() => {
-            setIsCameraOpen(true);
+            setIsCameraOpen({ isOpen: true, quality: 4 });
           }}
         >
           <p>Highest possible</p>
@@ -145,7 +165,7 @@ function App() {
           }}
           onClick={async () => {
             await camera?.stopCamera();
-            setIsCameraOpen(false);
+            setIsCameraOpen({ isOpen: false, quality: 1 });
           }}
         >
           <p>X</p>
