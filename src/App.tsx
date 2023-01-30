@@ -87,6 +87,14 @@ function App() {
     }
   };
 
+  const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      var file = e.target.files[0];
+      const objectUrl = URL.createObjectURL(file);
+      setPrev(objectUrl);
+    }
+  };
+
   if (!isCameraOpen.isOpen) {
     return (
       <div>
@@ -119,6 +127,11 @@ function App() {
         >
           <p>Highest possible</p>
         </button>
+        <input
+          onChange={onChange}
+          type={"file"}
+          accept={"image/png, image/jpeg"}
+        />
         <img
           src={prev}
           alt="PHOTO"
